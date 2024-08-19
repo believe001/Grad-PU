@@ -100,9 +100,9 @@ def midpoint_interpolate(args, sparse_pts):
 def get_p2p_loss(args, pred_p2p, sample_pts, gt_pts):
     # input: (b, c, n)
 
-    # (b, 3, n)
+    # (b, 3, n) 找样本点到gt的最近点
     knn_pts = get_knn_pts(1, gt_pts, sample_pts).squeeze(-1)
-    # (b, 1, n)
+    # (b, 1, n) 计算样本点到最近点的距离
     gt_p2p = torch.norm(knn_pts - sample_pts, p=2, dim=1, keepdim=True)
     # (b, 1, n)
     if args.use_smooth_loss == True:

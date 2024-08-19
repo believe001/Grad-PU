@@ -1,3 +1,4 @@
+# This file is used to test the P2PNet model on PU1K dataset or PUGAN dataset and save the upsampled point cloud.
 import torch
 import numpy as np
 from glob import glob

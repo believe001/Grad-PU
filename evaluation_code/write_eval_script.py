@@ -1,8 +1,9 @@
+# generate evaluation script for PU-GAN and PU-1K
 import os
 from glob import glob
 import argparse
-
-
+#--dataset pugan 
+# --upsampled_pcd_path  ../pretrained_model/pugan/test/4X/
 def write_eval_script(args):
     pcds = glob(os.path.join(args.upsampled_pcd_path, '*.xyz'))
     if args.dataset == 'pu1k':
@@ -20,9 +21,11 @@ def write_eval_script(args):
                 continue
             mesh_name = pcd_name.replace(".xyz", ".off")
             mesh_path = os.path.join(mesh_dir, mesh_name)
+            # print("./evaluation {} {}\n".format(mesh_path, pcd_path))
             f.write("./evaluation {} {}\n".format(mesh_path, pcd_path))
 
-
+#--dataset pugan 
+# --upsampled_pcd_path  ../pretrained_model/pugan/test/4X/
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Evaluation Arguments')
     parser.add_argument('--dataset', default='', type=str, help='datasetname, pu1k or pugan')
