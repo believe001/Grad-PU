@@ -108,7 +108,7 @@ The upsampled point clouds are saved at ./pretrained_model/pugan/test/save_dir. 
 ```
 # take 4X upsampled results for example
 cd evaluation_code
-python write_eval_script.py --dataset pugan --upsampled_pcd_path ../pretrained_model/pugan/test/4X/
+python write_eval_script.py --dataset pugan --upsampled_pcd_path ../pretrained_model/pugan/test/4X/  # write the evaluation script into .sh file
 bash eval_pugan.sh
 ```
 
@@ -119,7 +119,9 @@ Later you need to shift to the virtual environment and code folder of [PU-GCN](h
 ```
 python evaluate.py --pred path_to_upsampled_point_clouds --gt path_to_ground_truth_high-res_point_clouds --save_path calculated_metrics_save_path
 ```
-
+```
+python evaluate.py --pred ../Grad-PU/pretrained_model/pugan/test/4X/ --gt ../Grad-PU/data/PU-GAN/test_pointcloud/input_2048_4X/gt_8192 --save_path ../Grad-PU/pretrained_model/pugan/save_path_byme
+```
 You should fill the `pred`, `gt` and `save_path` arguments of `evaluate.py` script accordingly. And finally you can get the `evaluation.csv` and `finalresult.text` files in the `save_path` folder.
 
 * PU1K

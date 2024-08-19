@@ -1,0 +1,301 @@
+[2024-08-17 21:18:30,226::train::INFO] Experiment ID: 2024-08-17T21:18:30.224986
+[2024-08-17 21:18:30,226::train::INFO] ========== Build Model ==========
+[2024-08-17 21:18:31,729::train::INFO] === The number of parameters in model: 67.0730 K === 
+[2024-08-17 21:18:31,729::train::INFO] Namespace(batch_size=32, beta=0.01, block_num=3, bn_size=1, ckpt_path='./pretrained_model/pugan/ckpt/ckpt-epoch-60.pth', dataset='pugan', double_4X=False, epochs=60, feat_dim=32, gamma=0.5, growth_rate=32, h5_file_path='./data/PU-GAN/train/PUGAN_poisson_256_poisson_1024.h5', jitter_max=0.03, jitter_sigma=0.01, k=16, layer_num=3, local_sigma=0.02, lr=0.001, lr_decay_step=20, max_dist=0.2, num_iterations=10, num_points=256, num_workers=4, optim='adam', out_path='./output', patch_rate=3, print_rate=200, save_dir='pcd', save_rate=10, seed=21, skip_rate=1, test_input_path='./data/PU-GAN/test_pointcloud/input_2048_4X/input_2048/', test_step_size=50, truncate_distance=False, up_rate=4, use_random_input=True, use_smooth_loss=False, weight_decay=0)
+[2024-08-17 21:18:31,730::train::INFO] P2PNet(
+  (feature_extractor): FeatureExtractor(
+    (conv_init): Sequential(
+      (0): Conv1d(3, 32, kernel_size=(1,), stride=(1,))
+      (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+      (2): ReLU(inplace=True)
+    )
+    (dense_blocks): ModuleList(
+      (0): ModuleList(
+        (0): DenseUnit(
+          (dense_layers): ModuleList(
+            (0): DenseLayer(
+              (conv_bottle): Sequential(
+                (0): Conv1d(32, 32, kernel_size=(1,), stride=(1,))
+                (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                (2): ReLU(inplace=True)
+              )
+              (point_conv): Point3DConv(
+                (conv_delta): Sequential(
+                  (0): Conv2d(3, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (conv_feats): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (post_conv): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+              )
+            )
+            (1): DenseLayer(
+              (conv_bottle): Sequential(
+                (0): Conv1d(64, 32, kernel_size=(1,), stride=(1,))
+                (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                (2): ReLU(inplace=True)
+              )
+              (point_conv): Point3DConv(
+                (conv_delta): Sequential(
+                  (0): Conv2d(3, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (conv_feats): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (post_conv): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+              )
+            )
+            (2): DenseLayer(
+              (conv_bottle): Sequential(
+                (0): Conv1d(96, 32, kernel_size=(1,), stride=(1,))
+                (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                (2): ReLU(inplace=True)
+              )
+              (point_conv): Point3DConv(
+                (conv_delta): Sequential(
+                  (0): Conv2d(3, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (conv_feats): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (post_conv): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+              )
+            )
+          )
+        )
+        (1): Transition(
+          (trans): Sequential(
+            (0): Conv1d(128, 32, kernel_size=(1,), stride=(1,))
+            (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            (2): ReLU(inplace=True)
+          )
+        )
+      )
+      (1): ModuleList(
+        (0): DenseUnit(
+          (dense_layers): ModuleList(
+            (0): DenseLayer(
+              (conv_bottle): Sequential(
+                (0): Conv1d(32, 32, kernel_size=(1,), stride=(1,))
+                (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                (2): ReLU(inplace=True)
+              )
+              (point_conv): Point3DConv(
+                (conv_delta): Sequential(
+                  (0): Conv2d(3, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (conv_feats): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (post_conv): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+              )
+            )
+            (1): DenseLayer(
+              (conv_bottle): Sequential(
+                (0): Conv1d(64, 32, kernel_size=(1,), stride=(1,))
+                (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                (2): ReLU(inplace=True)
+              )
+              (point_conv): Point3DConv(
+                (conv_delta): Sequential(
+                  (0): Conv2d(3, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (conv_feats): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (post_conv): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+              )
+            )
+            (2): DenseLayer(
+              (conv_bottle): Sequential(
+                (0): Conv1d(96, 32, kernel_size=(1,), stride=(1,))
+                (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                (2): ReLU(inplace=True)
+              )
+              (point_conv): Point3DConv(
+                (conv_delta): Sequential(
+                  (0): Conv2d(3, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (conv_feats): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (post_conv): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+              )
+            )
+          )
+        )
+        (1): Transition(
+          (trans): Sequential(
+            (0): Conv1d(128, 32, kernel_size=(1,), stride=(1,))
+            (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            (2): ReLU(inplace=True)
+          )
+        )
+      )
+      (2): ModuleList(
+        (0): DenseUnit(
+          (dense_layers): ModuleList(
+            (0): DenseLayer(
+              (conv_bottle): Sequential(
+                (0): Conv1d(32, 32, kernel_size=(1,), stride=(1,))
+                (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                (2): ReLU(inplace=True)
+              )
+              (point_conv): Point3DConv(
+                (conv_delta): Sequential(
+                  (0): Conv2d(3, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (conv_feats): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (post_conv): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+              )
+            )
+            (1): DenseLayer(
+              (conv_bottle): Sequential(
+                (0): Conv1d(64, 32, kernel_size=(1,), stride=(1,))
+                (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                (2): ReLU(inplace=True)
+              )
+              (point_conv): Point3DConv(
+                (conv_delta): Sequential(
+                  (0): Conv2d(3, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (conv_feats): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (post_conv): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+              )
+            )
+            (2): DenseLayer(
+              (conv_bottle): Sequential(
+                (0): Conv1d(96, 32, kernel_size=(1,), stride=(1,))
+                (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                (2): ReLU(inplace=True)
+              )
+              (point_conv): Point3DConv(
+                (conv_delta): Sequential(
+                  (0): Conv2d(3, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (conv_feats): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+                (post_conv): Sequential(
+                  (0): Conv2d(32, 32, kernel_size=(1, 1), stride=(1, 1))
+                  (1): BatchNorm2d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+                  (2): ReLU(inplace=True)
+                )
+              )
+            )
+          )
+        )
+        (1): Transition(
+          (trans): Sequential(
+            (0): Conv1d(128, 32, kernel_size=(1,), stride=(1,))
+            (1): BatchNorm1d(32, eps=1e-05, momentum=0.1, affine=True, track_running_stats=True)
+            (2): ReLU(inplace=True)
+          )
+        )
+      )
+    )
+  )
+  (p2p_regressor): P2PRegressor(
+    (mlp_0): Conv1d(163, 64, kernel_size=(1,), stride=(1,))
+    (mlp_1): Conv1d(64, 32, kernel_size=(1,), stride=(1,))
+    (mlp_2): Conv1d(32, 16, kernel_size=(1,), stride=(1,))
+    (mlp_3): Conv1d(16, 1, kernel_size=(1,), stride=(1,))
+    (actvn): ReLU()
+  )
+)
+[2024-08-17 21:18:31,732::train::INFO] ========== Begin Training ==========
+[2024-08-17 21:18:31,732::train::INFO] ********* Epoch 1 *********
+Loaded compiled 3D CUDA chamfer distance
+[2024-08-17 21:19:29,527::train::INFO] epoch: 1/60, iters: 200/750, loss: 10.756646
+[2024-08-17 21:20:28,913::train::INFO] epoch: 1/60, iters: 400/750, loss: 9.990095
+[2024-08-17 21:21:31,273::train::INFO] epoch: 1/60, iters: 600/750, loss: 9.710340
+[2024-08-17 21:22:19,445::train::INFO] epoch: 1/60, avg epoch loss: 9.600608, time: 3 mins 53.1 secs
+[2024-08-17 21:22:19,446::train::INFO] ********* Epoch 2 *********
+[2024-08-17 21:23:25,019::train::INFO] epoch: 2/60, iters: 200/750, loss: 9.162044
+[2024-08-17 21:24:31,445::train::INFO] epoch: 2/60, iters: 400/750, loss: 9.152768
+[2024-08-17 21:25:38,530::train::INFO] epoch: 2/60, iters: 600/750, loss: 9.150249
+[2024-08-17 21:26:29,017::train::INFO] epoch: 2/60, avg epoch loss: 9.139299, time: 8 mins 2.6 secs
+[2024-08-17 21:26:29,017::train::INFO] ********* Epoch 3 *********
+[2024-08-17 21:27:36,907::train::INFO] epoch: 3/60, iters: 200/750, loss: 9.129078
+[2024-08-17 21:28:45,296::train::INFO] epoch: 3/60, iters: 400/750, loss: 9.128360
+[2024-08-17 21:29:53,691::train::INFO] epoch: 3/60, iters: 600/750, loss: 9.123559
+[2024-08-17 21:30:44,771::train::INFO] epoch: 3/60, avg epoch loss: 9.111269, time: 12 mins 18.4 secs
+[2024-08-17 21:30:44,771::train::INFO] ********* Epoch 4 *********
+[2024-08-17 21:31:53,846::train::INFO] epoch: 4/60, iters: 200/750, loss: 9.097507
+[2024-08-17 21:33:02,861::train::INFO] epoch: 4/60, iters: 400/750, loss: 9.099444
+[2024-08-17 21:34:12,062::train::INFO] epoch: 4/60, iters: 600/750, loss: 9.103607
+[2024-08-17 21:35:03,835::train::INFO] epoch: 4/60, avg epoch loss: 9.097493, time: 16 mins 37.4 secs
+[2024-08-17 21:35:03,835::train::INFO] ********* Epoch 5 *********
+[2024-08-17 21:36:13,246::train::INFO] epoch: 5/60, iters: 200/750, loss: 9.101891

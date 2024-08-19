@@ -4,8 +4,6 @@ from einops import repeat
 from models.FeatureExtractor import FeatureExtractor
 from models.P2PRegressor import P2PRegressor
 from models.utils import get_knn_pts, index_points
-
-
 class P2PNet(nn.Module):
     def __init__(self, args):
         super(P2PNet, self).__init__()
@@ -13,7 +11,8 @@ class P2PNet(nn.Module):
         self.args = args
         self.feature_extractor = FeatureExtractor(args)
         self.p2p_regressor = P2PRegressor(args)
-
+        # 引入 Dropout 层
+#         self.dropout = nn.Dropout(0.5)
 
     def extract_feature(self, original_pts):
         # input: (b, 3, n)
@@ -59,6 +58,8 @@ class P2PNet(nn.Module):
         agg_local_feats = torch.cat(interpolated_local_feats, dim=1)
         # (b, 3+c*(block_num+2), m)
         agg_feats = torch.cat((query_pts, agg_local_feats, global_feats), dim=1)
+        # 引入 Dropout 层
+#         agg_feats = self.dropout(agg_feats)
         # (b, 1, n)
         p2p = self.p2p_regressor(agg_feats)
         return p2p
