@@ -1,0 +1,3 @@
+[2024-08-19 09:15:52,040::test::INFO] Average pcd time: 0.20066846741570366s
+[2024-08-19 09:17:33,044::test::INFO] Average pcd time: 2.0981446460441306s
+[2024-08-19 09:23:51,800::test::INFO] Average pcd time: 0.2767625119951036s
