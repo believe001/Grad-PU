@@ -5,6 +5,50 @@ from einops import repeat, rearrange
 from models.pointops.functions import pointops
 import torch.nn.functional as F
 
+
+class SelfAttention(nn.Module):
+    def __init__(self, in_channels):
+        super(SelfAttention, self).__init__()
+        self.query = nn.Conv1d(in_channels, in_channels // 8, 1)
+        self.key = nn.Conv1d(in_channels, in_channels // 8, 1)
+        self.value = nn.Conv1d(in_channels, in_channels, 1)
+        self.gamma = nn.Parameter(torch.zeros(1))
+
+    def forward(self, x):
+        # input: (b, c, n)
+        query = self.query(x).permute(0, 2, 1)  # (b, n, c//8)
+        key = self.key(x)  # (b, c//8, n)
+        value = self.value(x)  # (b, c, n)
+
+        attention = torch.bmm(query, key)  # (b, n, n)
+        attention = F.softmax(attention, dim=-1)
+
+        out = torch.bmm(value, attention.permute(0, 2, 1))  # (b, c, n)
+        out = self.gamma * out + x
+        return out
+
+
+class DenseLayer(nn.Module):
+    def __init__(self, args, input_dim):
+        super(DenseLayer, self).__init__()
+
+        self.conv_bottle = nn.Sequential(
+            nn.Conv1d(input_dim, args.bn_size * args.growth_rate, 1),
+            nn.BatchNorm1d(args.bn_size * args.growth_rate),
+            nn.ReLU(inplace=True)
+        )
+        self.point_conv = Point3DConv(args)
+        self.attention = SelfAttention(args.bn_size * args.growth_rate)
+
+    def forward(self, feats, pts, knn_idx=None):
+        # input: (b, c, n)
+
+        new_feats = self.conv_bottle(feats)
+        new_feats = self.attention(new_feats)
+        # (b, c, n)
+        new_feats = self.point_conv(new_feats, pts, knn_idx)
+        # concat
+        return torch.cat((feats, new_feats), dim=1)
 class Point3DConv(nn.Module):
     def __init__(self, args):
         super(Point3DConv, self).__init__()
@@ -52,25 +96,7 @@ class Point3DConv(nn.Module):
         return new_feats
 
 
-class DenseLayer(nn.Module):
-    def __init__(self, args, input_dim):
-        super(DenseLayer, self).__init__()
 
-        self.conv_bottle = nn.Sequential(
-            nn.Conv1d(input_dim, args.bn_size * args.growth_rate, 1),
-            nn.BatchNorm1d(args.bn_size * args.growth_rate),
-            nn.ReLU(inplace=True)
-        )
-        self.point_conv = Point3DConv(args)
-
-    def forward(self, feats, pts, knn_idx=None):
-        # input: (b, c, n)
-
-        new_feats = self.conv_bottle(feats)
-        # (b, c, n)
-        new_feats = self.point_conv(new_feats, pts, knn_idx)
-        # concat
-        return torch.cat((feats, new_feats), dim=1)
 
 
 class DenseUnit(nn.Module):
