@@ -17,15 +17,15 @@ import argparse
 
 def pcd_update(args, model, interpolated_pcd):
     # interpolated_pcd: (b, 3, n)
-
     pcd_pts_num = interpolated_pcd.shape[-1]
     # 1024
     patch_pts_num = args.num_points * 4
     # extract patch
     sample_num = int(pcd_pts_num / patch_pts_num * args.patch_rate)
     # FPS: (b, 3, fps_pts_num), ensure seeds have a good coverage
+    # FPS是选取有代表性的点
     seed = FPS(interpolated_pcd, sample_num)
-    # (b*fps_pts_num, 3, patch_pts_num)
+    # (b*fps_pts_num, 3, patch_pts_num) 选取以seed为中心的patch_pts_num近邻点作为patch,patch可以理解为重点关注的区域
     patches = extract_knn_patch(patch_pts_num, interpolated_pcd, seed)
 
     # normalize each patch
@@ -50,9 +50,10 @@ def pcd_update(args, model, interpolated_pcd):
         # back-propagation
         loss = pred_p2p.mean()
         loss.backward()
-
+        # python test.py --dataset pugan --test_input_path ./data/PU-GAN/test_pointcloud/input_2048_4X/input_2048/ --ckpt_path ./output/attention2/ckpt/ckpt-epoch-60.pth --save_dir 4X --up_rate 4
         # update patch
         gradient = updated_patch.grad.detach()
+        print('gradient: {}.loss:{}'.format(gradient.shape, loss.item()))
         updated_patch = updated_patch.detach()
         updated_patch = updated_patch - args.test_step_size * gradient
 
@@ -72,7 +73,6 @@ def pcd_update(args, model, interpolated_pcd):
 
 def pcd_upsample(args, model, input_pcd):
     # input: (b, 3, n)
-
     # interpolate: (b, 3, m)
     interpolated_pcd = midpoint_interpolate(args, input_pcd)
     # update: (b, 3, m)
@@ -154,7 +154,8 @@ def parse_test_args():
     parser.add_argument('--dataset', default='pu1k', type=str, help='pu1k or pugan')
     parser.add_argument('--test_input_path', default='./data/PU1K/test/input_2048/input_2048/', type=str,
                         help='the test input data path')
-    parser.add_argument('--ckpt_path', default='./pretrained_model/pu1k/ckpt/ckpt-epoch-60.pth', type=str, help='the pretrained model path')
+    parser.add_argument('--ckpt_path', default='./pretrained_model/pu1k/ckpt/ckpt-epoch-60.pth', type=str,
+                        help='the pretrained model path')
     parser.add_argument('--save_dir', default='pcd', type=str, help='save upsampled point cloud')
     parser.add_argument('--truncate_distance', default=True, type=str2bool, help='whether truncate distance')
     parser.add_argument('--up_rate', default=4, type=int, help='upsampling rate')

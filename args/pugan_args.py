@@ -1,12 +1,10 @@
 import argparse
 from args.utils import str2bool
-
-
 def parse_pugan_args():
     parser = argparse.ArgumentParser(description='Model Arguments')
     # seed
     parser.add_argument('--seed', default=21, type=float, help='seed')
-    # optimizer
+    # optimizerfeat_dim
     parser.add_argument('--optim', default='adam', type=str, help='optimizer, adam or sgd')
     parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
     parser.add_argument('--weight_decay', default=0, type=float, help='weight decay')
@@ -15,10 +13,10 @@ def parse_pugan_args():
     parser.add_argument('--gamma', default=0.5, type=float, help='gamma for scheduler_steplr')
     # dataset
     parser.add_argument('--dataset', default='pugan', type=str, help='pu1k or pugan')
-    parser.add_argument('--h5_file_path', default="./data/PU-GAN/train/PUGAN_poisson_256_poisson_1024.h5", type=str, help='the path of train dataset')
+    parser.add_argument('--h5_file_path', default="./data/PU-GAN/train/PUGAN_poisson_256_poisson_1024.h5", type=str, help='the path of train dataset') # TODO 这里修改为了新的自己添加100个圆柱数据集的h5文件
     parser.add_argument('--num_points', default=256, type=int, help='the points number of each input patch')
-    parser.add_argument('--skip_rate', default=1, type=int, help='used for dataset')
-    parser.add_argument('--use_random_input', default=True, type=str2bool, help='whether use random sampling for input generation')
+    parser.add_argument('--skip_rate', default=1, type=int, help='used for dataset') # TODO 这里原来是1，为了降低训练的数据量，改成64
+    parser.add_argument('--use_random_input', default=False, type=str2bool, help='whether use random sampling for input generation') # TODO 这里原本为true,现在为false
     parser.add_argument('--jitter_sigma', type=float, default=0.01, help="jitter augmentation")
     parser.add_argument('--jitter_max', type=float, default=0.03, help="jitter augmentation")
     # train
@@ -32,11 +30,11 @@ def parse_pugan_args():
     # model
     parser.add_argument('--k', default=16, type=int, help='neighbor number')
     parser.add_argument('--up_rate', default=4, type=int, help='upsampling rate')
-    parser.add_argument('--block_num', default=3, type=int, help='dense block number in the feature extractor')
-    parser.add_argument('--layer_num', default=3, type=int, help='dense layer number in each dense block')
-    parser.add_argument('--feat_dim', default=32, type=int, help='input(output) feature dimension in each dense block' )
+    parser.add_argument('--block_num', default=1, type=int, help='dense block number in the feature extractor') # TODO 原来是3，后来是1
+    parser.add_argument('--layer_num', default=3, type=int, help='dense layer number in each dense block') # TODO 原来是3!!!
+    parser.add_argument('--feat_dim', default=32, type=int, help='input(output) feature dimension in each dense block' ) # TODO 原来是32
     parser.add_argument('--bn_size', default=1, type=int, help='the factor used in the bottleneck layer')
-    parser.add_argument('--growth_rate', default=32, type=int, help='output feature dimension in each dense layer')
+    parser.add_argument('--growth_rate', default=32, type=int, help='output feature dimension in each dense layer')# TODO 原来是32
     # query points
     parser.add_argument('--local_sigma', default=0.02, type=float, help='used for sample points')
     # truncate distance

@@ -60,7 +60,8 @@ def train(args):
         optimizer = optim.SGD(model.parameters(), lr=args.lr)
     # lr scheduler
     scheduler_steplr = optim.lr_scheduler.StepLR(optimizer, step_size=args.lr_decay_step, gamma=args.gamma)
-
+    # 初始化最小损失
+    min_loss = float('inf')
     # train
     logger.info('========== Begin Training ==========')
     for epoch in range(args.epochs):
@@ -73,10 +74,10 @@ def train(args):
             input_pts = rearrange(input_pts, 'b n c -> b c n').contiguous().float().cuda()
             gt_pts = rearrange(gt_pts, 'b n c -> b c n').contiguous().float().cuda()
 
-            # # midpoint interpolation
+            # # midpoint interpolation：一个点的最近邻k个点，取中间值。得到插值点集合后用FPS降采样得到需要的点个数。
             interpolate_pts = midpoint_interpolate(args, input_pts)
 
-            # query points
+            # query points： 在插值点的基础上添加高斯噪声得到查询点
             query_pts = get_query_points(interpolate_pts, args)
             # model forward, predict point-to-point distance: (b, 1, n)
             pred_p2p = model(interpolate_pts, query_pts)
@@ -101,6 +102,7 @@ def train(args):
 
         # log
         interval = time.time() - start
+        avg_epoch_loss = epoch_loss / len(train_loader)
         logger.info("epoch: %d/%d, avg epoch loss: %f, time: %d mins %.1f secs" %
           (epoch + 1, args.epochs, epoch_loss / len(train_loader), interval / 60, interval % 60))
 
@@ -109,16 +111,21 @@ def train(args):
             model_name = 'ckpt-epoch-%d.pth' % (epoch+1)
             model_path = os.path.join(ckpt_dir, model_name)
             torch.save(model.state_dict(), model_path)
-
-
+        # 保存当前epoch的损失，如果比之前的最小损失还小
+        if avg_epoch_loss < min_loss:
+            min_loss = avg_epoch_loss
+            model_name = 'min_loss_ckpt.pth'
+            model_path = os.path.join(ckpt_dir, model_name)
+            torch.save(model.state_dict(), model_path)
+            logger.info("Saved new checkpoint with minimum epoch loss: %f" % min_loss)
 def parse_train_args():
     parser = argparse.ArgumentParser(description='Training Arguments')
 
-    parser.add_argument('--dataset', default='pu1k', type=str, help='pu1k or pugan')
+    parser.add_argument('--dataset', default='pugan', type=str, help='pu1k or pugan')
     parser.add_argument('--optim', default='adam', type=str, help='optimizer, adam or sgd')
-    parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
-    parser.add_argument('--epochs', default=60, type=int, help='training epochs')
-    parser.add_argument('--batch_size', default=16, type=int, help='batch size') # TODO 这里原来是32，改成16
+    parser.add_argument('--lr', default=1e-3, type=float, help='learning rate') # TODO 这里原来是1e-3，改成1e-2
+    parser.add_argument('--epochs', default=100, type=int, help='training epochs') # TODO 这里原来是60，改成100
+    parser.add_argument('--batch_size', default=32, type=int, help='batch size') # TODO 原来是32
     parser.add_argument('--print_rate', default=200, type=int, help='loss print frequency in each epoch')
     parser.add_argument('--save_rate', default=10, type=int, help='model save frequency')
     parser.add_argument('--out_path', default='./output', type=str, help='the checkpoint and log save path')
@@ -134,7 +141,9 @@ if __name__ == "__main__":
     if train_args.dataset == 'pu1k':
         model_args = parse_pu1k_args()
     else:
+        # 自定义的参数
         model_args = parse_pugan_args()
+
 
     reset_model_args(train_args, model_args)
 

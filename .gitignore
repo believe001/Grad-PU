@@ -1,0 +1,12 @@
+/data/
+/evaluation_code/
+
+/pretrained_model/
+/output/
+/visual_code/attention/
+/visual_code/attention_depthwise/
+/visual_code/baseline_true/
+/visual_code/gt/
+/visual_code/input/
+/visual_code/pu1k_baseline/
+/visual_code/scan/

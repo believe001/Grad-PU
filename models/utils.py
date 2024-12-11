@@ -45,19 +45,23 @@ def index_points(pts, idx):
 
 
 def FPS(pts, fps_pts_num):
+    """
+    最远点采样：从pts中找出fps_pts_num具有代表性的点
+    """
     # input: (b, 3, n)
-
     # (b, n, 3)
     pts_trans = rearrange(pts, 'b c n -> b n c').contiguous()
     # (b, fps_pts_num)
     sample_idx = pointops.furthestsampling(pts_trans, fps_pts_num).long()
     # (b, 3, fps_pts_num)
     sample_pts = index_points(pts, sample_idx)
-
     return sample_pts
 
 
 def get_knn_pts(k, pts, center_pts, return_idx=False):
+    """
+    pts中获取每个中心点center_pts的k个最近邻点。
+    """
     # input: (b, 3, n)
 
     # (b, n, 3)
@@ -149,6 +153,9 @@ def add_noise(pts, sigma, clamp):
 
 # generate patch for test
 def extract_knn_patch(k, pts, center_pts):
+    """
+    从pts中找出center_pts的k个近邻点
+    """
     # input : (b, 3, n)
 
     # (n, 3)
