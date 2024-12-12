@@ -13,7 +13,7 @@ from args.pugan_args import parse_pugan_args
 from args.utils import str2bool
 from tqdm import tqdm
 import argparse
-
+1111111111
 
 def pcd_update(args, model, interpolated_pcd):
     # interpolated_pcd: (b, 3, n)
