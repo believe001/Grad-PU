@@ -484,7 +484,7 @@ class KNNQuery_Heap(Function):
         dist2 = torch.cuda.FloatTensor(b, m, nsample).zero_()
         pointops_cuda.knnquery_heap_cuda(b, n, m, nsample, xyz, new_xyz, idx, dist2)
         ctx.mark_non_differentiable(idx)
-        return idx
+        return idx  # 32x256x8
 
     @staticmethod
     def backward(ctx, a=None):

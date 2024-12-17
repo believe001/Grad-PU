@@ -125,7 +125,7 @@ def parse_train_args():
     parser.add_argument('--optim', default='adam', type=str, help='optimizer, adam or sgd')
     parser.add_argument('--lr', default=1e-3, type=float, help='learning rate') # TODO 这里原来是1e-3，改成1e-2
     parser.add_argument('--epochs', default=100, type=int, help='training epochs') # TODO 这里原来是60，改成100
-    parser.add_argument('--batch_size', default=32, type=int, help='batch size') # TODO 原来是32
+    parser.add_argument('--batch_size', default=32, type=int, help='batch size')
     parser.add_argument('--print_rate', default=200, type=int, help='loss print frequency in each epoch')
     parser.add_argument('--save_rate', default=10, type=int, help='model save frequency')
     parser.add_argument('--out_path', default='./output', type=str, help='the checkpoint and log save path')

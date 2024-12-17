@@ -70,7 +70,7 @@ def get_knn_pts(k, pts, center_pts, return_idx=False):
     center_pts_trans = rearrange(center_pts, 'b c m -> b m c').contiguous()
     # (b, m, k)
     knn_idx = pointops.knnquery_heap(k, pts_trans, center_pts_trans).long()
-    # (b, 3, m, k)
+    # (b, 3, m, k):m个中心点的k个近邻点（m个组每个组k个近邻点）
     knn_pts = index_points(pts, knn_idx)
 
     if return_idx == False:
@@ -82,9 +82,9 @@ def get_knn_pts(k, pts, center_pts, return_idx=False):
 def midpoint_interpolate(args, sparse_pts):
     # sparse_pts: (b, 3, n)
 
-    pts_num = sparse_pts.shape[-1]
-    up_pts_num = int(pts_num * args.up_rate)
-    k = int(2 * args.up_rate)
+    pts_num = sparse_pts.shape[-1]  # 256
+    up_pts_num = int(pts_num * args.up_rate)  # 1024
+    k = int(2 * args.up_rate)  # 8
     # (b, 3, n, k)
     knn_pts = get_knn_pts(k, sparse_pts, sparse_pts)
     # (b, 3, n, k)
@@ -99,7 +99,13 @@ def midpoint_interpolate(args, sparse_pts):
     interpolated_pts = FPS(interpolated_pts, up_pts_num)
 
     return interpolated_pts
-
+if __name__ == '__main__':
+    # 测试midpoint_interpolate
+    sparse_pts = torch.rand(1, 3, 2).cuda()
+    args = type('', (), {})()
+    args.up_rate = 2.0
+    interpolated_pts = midpoint_interpolate(args, sparse_pts)
+    print(interpolated_pts.shape)
 
 def get_p2p_loss(args, pred_p2p, sample_pts, gt_pts):
     # input: (b, c, n)

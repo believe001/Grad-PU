@@ -5,18 +5,18 @@ import h5py
 
 # load and normalize data
 def load_h5_data(args):
-    num_points = args.num_points
-    num_4X_points = int(args.num_points * 4)
-    num_out_points = int(args.num_points * args.up_rate)
-    skip_rate = args.skip_rate
-    use_random_input = args.use_random_input
+    num_points = args.num_points  # 256
+    num_4X_points = int(args.num_points * 4)  # 1024
+    num_out_points = int(args.num_points * args.up_rate)  # 1024
+    skip_rate = args.skip_rate  # 1
+    use_random_input = args.use_random_input  # true
     h5_file_path = args.h5_file_path
 
     if use_random_input:
         with h5py.File(h5_file_path, 'r') as f:
-            # (b, n, 3)
+            # (b, n, 3) (24000, 1024, 3) ？？？
             input = f['poisson_%d' % num_4X_points][:]
-            # (b, n, 3)
+            # (b, n, 3) (24000, 1024, 3)
             gt = f['poisson_%d' % num_out_points][:]
     else:
         with h5py.File(h5_file_path, 'r') as f:
@@ -46,7 +46,7 @@ def load_h5_data(args):
 # nonuniform sample point cloud to get input data
 def nonuniform_sampling(num, sample_num):
     sample = set()
-    loc = np.random.rand() * 0.8 + 0.1
+    loc = np.random.rand() * 0.8 + 0.1  # [0.1, 0.9]
     while len(sample) < sample_num:
         a = int(np.random.normal(loc=loc, scale=0.3) * num)
         if a < 0 or a >= num:
@@ -64,8 +64,8 @@ def jitter_perturbation_point_cloud(input, sigma=0.005, clip=0.02):
           Nx3 array, jittered batch of point clouds
     """
     N, C = input.shape
-    assert(clip > 0)
-    jittered_data = np.clip(sigma * np.random.randn(N, C), -1 * clip, clip)
+    assert (clip > 0)
+    jittered_data = np.clip(sigma * np.random.randn(N, C), -1 * clip, clip)  # limit value to [-clip, clip]
     jittered_data += input
     return jittered_data
 

@@ -20,9 +20,9 @@ class PUDataset(data.Dataset):
         gt = self.gt_data[index]
         radius = self.radius_data[index]
         if self.args.use_random_input:
-            sample_idx = nonuniform_sampling(input.shape[0], sample_num=self.args.num_points)
+            sample_idx = nonuniform_sampling(input.shape[0], sample_num=self.args.num_points)  # 如果用随机输入，那么input和gt一样的只是在这一步进行随机选择256个点
             input = input[sample_idx, :]
-        # data augmentation
+        # data augmentation: jitter, rotation, scaling
         if self.args.use_random_input:
             input = jitter_perturbation_point_cloud(input, sigma=self.args.jitter_sigma, clip=self.args.jitter_max)
         input, gt = rotate_point_cloud_and_gt(input, gt)
