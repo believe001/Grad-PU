@@ -1,0 +1,1 @@
+/usr/bin/c++   -g -O2 -fstack-protector-strong -Wformat -Werror=format-security -D_FORTIFY_SOURCE=2  -frounding-math -fopenmp -O3 -DNDEBUG   -Wl,-Bsymbolic-functions -Wl,-z,relro -Wl,--as-needed CMakeFiles/evaluation.dir/evaluation.cpp.o  -o evaluation -rdynamic -lgmp -lmpfr -lboost_thread -lboost_system -lboost_chrono -lboost_date_time -lboost_atomic -lpthread 
