@@ -114,11 +114,11 @@ def train(args):
 def parse_train_args():
     parser = argparse.ArgumentParser(description='Training Arguments')
 
-    parser.add_argument('--dataset', default='pu1k', type=str, help='pu1k or pugan')
+    parser.add_argument('--dataset', default='pugan', type=str, help='pu1k or pugan')
     parser.add_argument('--optim', default='adam', type=str, help='optimizer, adam or sgd')
     parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
     parser.add_argument('--epochs', default=60, type=int, help='training epochs')
-    parser.add_argument('--batch_size', default=16, type=int, help='batch size') # TODO 这里原来是32，改成16
+    parser.add_argument('--batch_size', default=32, type=int, help='batch size')
     parser.add_argument('--print_rate', default=200, type=int, help='loss print frequency in each epoch')
     parser.add_argument('--save_rate', default=10, type=int, help='model save frequency')
     parser.add_argument('--out_path', default='./output', type=str, help='the checkpoint and log save path')
