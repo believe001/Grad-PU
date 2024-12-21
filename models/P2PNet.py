@@ -66,7 +66,7 @@ class P2PNet(nn.Module):
 
 
     def forward(self, original_pts, query_pts):
-        # input: (b, 3, n)
+        # input: (b, 3, n) 原始点为插值点。查询点为增加噪声的点。
 
         # global_feats: (b, c), local_feats: list (b, c, n)
         global_feats, local_feats = self.extract_feature(original_pts)

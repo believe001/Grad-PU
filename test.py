@@ -18,15 +18,15 @@ import argparse
 def pcd_update(args, model, interpolated_pcd):
     # interpolated_pcd: (b, 3, n)
 
-    pcd_pts_num = interpolated_pcd.shape[-1]
+    pcd_pts_num = interpolated_pcd.shape[-1]  # 8192
     # 1024
-    patch_pts_num = args.num_points * 4
+    patch_pts_num = args.num_points * 4  # patch（组）数量，也就是每个组的数量
     # extract patch
-    sample_num = int(pcd_pts_num / patch_pts_num * args.patch_rate)
+    sample_num = int(pcd_pts_num / patch_pts_num * args.patch_rate)  # 多少个组
     # FPS: (b, 3, fps_pts_num), ensure seeds have a good coverage
-    seed = FPS(interpolated_pcd, sample_num)
+    seed = FPS(interpolated_pcd, sample_num)  # 提取出24个骨干点。
     # (b*fps_pts_num, 3, patch_pts_num)
-    patches = extract_knn_patch(patch_pts_num, interpolated_pcd, seed)
+    patches = extract_knn_patch(patch_pts_num, interpolated_pcd, seed)  # 24个组，每个组1024个点，3维坐标
 
     # normalize each patch
     patches, centroid, furthest_distance = normalize_point_cloud(patches)

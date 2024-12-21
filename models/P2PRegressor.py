@@ -10,7 +10,7 @@ class P2PRegressor(nn.Module):
         self.mlp_1 = nn.Conv1d(args.feat_dim*2, args.feat_dim, 1)
         self.mlp_2 = nn.Conv1d(args.feat_dim, args.feat_dim//2, 1)
         self.mlp_3 = nn.Conv1d(args.feat_dim//2, 1, 1)
-#111
+
 
 #         self.mlp_0 = FastKANConv1DLayer(input_dim, args.feat_dim*2, 1)
 #         self.mlp_1 = FastKANConv1DLayer(args.feat_dim*2, args.feat_dim, 1)

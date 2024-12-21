@@ -76,7 +76,7 @@ def train(args):
             # # midpoint interpolation
             interpolate_pts = midpoint_interpolate(args, input_pts)
 
-            # query points
+            # query points:添加噪声后的点
             query_pts = get_query_points(interpolate_pts, args)
             # model forward, predict point-to-point distance: (b, 1, n)
             pred_p2p = model(interpolate_pts, query_pts)

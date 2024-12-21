@@ -5,6 +5,7 @@ from einops import repeat, rearrange
 from models.pointops.functions import pointops
 import torch.nn.functional as F
 
+
 class Point3DConv(nn.Module):
     def __init__(self, args):
         super(Point3DConv, self).__init__()
@@ -36,9 +37,9 @@ class Point3DConv(nn.Module):
         else:
             knn_pts = index_points(pts, knn_idx)
         # (b, 3, n, k)
-        knn_delta = knn_pts - pts[..., None]
+        knn_delta = knn_pts - pts[..., None]  # 计算K近邻点（knn_pts）与当前点（pts）之间的差值
         # (b, c, n, k)
-        knn_delta = self.conv_delta(knn_delta)
+        knn_delta = self.conv_delta(knn_delta)  # 32x32x1024x16
         # (b, c, n, k)
         knn_feats = index_points(feats, knn_idx)
         # (b, c, n, k)
@@ -79,7 +80,7 @@ class DenseUnit(nn.Module):
 
         self.dense_layers = nn.ModuleList([])
         for i in range(args.layer_num):
-            self.dense_layers.append(DenseLayer(args, args.feat_dim + i * args.growth_rate))
+            self.dense_layers.append(DenseLayer(args, args.feat_dim + i * args.growth_rate))  # 32 64 96
 
     def forward(self, feats, pts, knn_idx=None):
         # input: (b, c, n)
@@ -94,7 +95,7 @@ class Transition(nn.Module):
     def __init__(self, args):
         super(Transition, self).__init__()
 
-        input_dim = args.feat_dim + args.layer_num * args.growth_rate
+        input_dim = args.feat_dim + args.layer_num * args.growth_rate  # 128
         self.trans = nn.Sequential(
             nn.Conv1d(input_dim, args.feat_dim, 1),
             nn.BatchNorm1d(args.feat_dim),
