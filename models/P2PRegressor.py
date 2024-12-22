@@ -1,3 +1,4 @@
+import torch
 import torch.nn as nn
 from models.FastKANConv import FastKANConv1DLayer
 
@@ -10,7 +11,6 @@ class P2PRegressor(nn.Module):
         self.mlp_1 = nn.Conv1d(args.feat_dim*2, args.feat_dim, 1)
         self.mlp_2 = nn.Conv1d(args.feat_dim, args.feat_dim//2, 1)
         self.mlp_3 = nn.Conv1d(args.feat_dim//2, 1, 1)
-#111
 
 #         self.mlp_0 = FastKANConv1DLayer(input_dim, args.feat_dim*2, 1)
 #         self.mlp_1 = FastKANConv1DLayer(args.feat_dim*2, args.feat_dim, 1)
@@ -26,4 +26,6 @@ class P2PRegressor(nn.Module):
         output = self.actvn(self.mlp_2(output))
         output = self.actvn(self.mlp_3(output))
         # (b, 1, n)
+        # 将（b,1,n）转换为（b,1）TODO
+        output = torch.mean(output, dim=-1, keepdim=True)
         return output

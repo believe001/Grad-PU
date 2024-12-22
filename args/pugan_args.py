@@ -45,8 +45,8 @@ def parse_pugan_args():
     # ouput
     parser.add_argument('--out_path', default='./output', type=str, help='the checkpoint and log save path')
     # test
-    parser.add_argument('--num_iterations', default=10, type=int, help='the number of update iterations')
-    parser.add_argument('--test_step_size', default=50, type=float, help='predefined test step size')
+    parser.add_argument('--num_iterations', default=150, type=int, help='the number of update iterations') # TODO原来是10。150
+    parser.add_argument('--test_step_size', default=10, type=float, help='predefined test step size') # TODO原来是50。10
     parser.add_argument('--test_input_path', default='./data/PU-GAN/test_pointcloud/input_2048_4X/input_2048/', type=str, help='the test input data path')
     parser.add_argument('--ckpt_path', default='./pretrained_model/pugan/ckpt/ckpt-epoch-60.pth', type=str, help='the pretrained model path')
     parser.add_argument('--patch_rate', default=3, type=int, help='used for patch generation')

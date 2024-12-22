@@ -79,9 +79,13 @@ def train(args):
             # query points
             query_pts = get_query_points(interpolate_pts, args)
             # model forward, predict point-to-point distance: (b, 1, n)
-            pred_p2p = model(interpolate_pts, query_pts)
+            # pred_p2p = model(interpolate_pts, query_pts)
+            pred_cd = model(interpolate_pts, query_pts)  # TODO
             # calculate loss
-            loss = get_p2p_loss(args, pred_p2p, query_pts, gt_pts)
+            # loss = get_p2p_loss(args, pred_p2p, query_pts, gt_pts)
+            loss = get_cd_loss(args, pred_cd, query_pts, gt_pts)  # TODO
+
+
             epoch_loss += loss.item()
 
             # update parameters

@@ -119,7 +119,31 @@ def get_p2p_loss(args, pred_p2p, sample_pts, gt_pts):
     loss = loss.squeeze(1).sum(dim=-1).mean()
 
     return loss
+def get_cd_loss(args, pred_cd, sample_pts, gt_pts):
+    # pred_cd: 维度(b, 1), sample_pts:维度(b, 3, n),gt_pts:维度(b, 3 ,n)
+    # 计算sample_pts和gt_pts之间的CD距离gt_cd维度(b,1)
+    # 计算loss:pred_cd和gt_cd:scalar
+    knn_pts = get_knn_pts(1, gt_pts, sample_pts).squeeze(-1)
+    gt_cd = torch.norm(knn_pts - sample_pts, p=2, dim=1, keepdim=True).mean(dim=-1, keepdim=True)
 
+    # Calculate loss: pred_cd and gt_cd: scalar
+    if args.use_smooth_loss:
+        if args.truncate_distance:
+            loss = torch.nn.SmoothL1Loss(reduction='none', beta=args.beta)(
+                torch.clamp(pred_cd, max=args.max_dist), torch.clamp(gt_cd, max=args.max_dist)
+            )
+        else:
+            loss = torch.nn.SmoothL1Loss(reduction='none', beta=args.beta)(pred_cd, gt_cd)
+    else:
+        if args.truncate_distance:
+            loss = torch.nn.L1Loss(reduction='none')(
+                torch.clamp(pred_cd, max=args.max_dist), torch.clamp(gt_cd, max=args.max_dist)
+            )
+        else:
+            loss = torch.nn.L1Loss(reduction='none')(pred_cd, gt_cd)
+
+    loss = loss.mean()
+    return loss
 
 def normalize_point_cloud(input, centroid=None, furthest_distance=None):
     # input: (b, 3, n) tensor
