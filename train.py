@@ -80,10 +80,10 @@ def train(args):
             query_pts = get_query_points(interpolate_pts, args)
             # model forward, predict point-to-point distance: (b, 1, n)
             # pred_p2p = model(interpolate_pts, query_pts)
-            pred_cd = model(interpolate_pts, query_pts)  # TODO
+            pred_cd_hd = model(interpolate_pts, query_pts)  # TODO
             # calculate loss
             # loss = get_p2p_loss(args, pred_p2p, query_pts, gt_pts)
-            loss = get_cd_loss(args, pred_cd, query_pts, gt_pts)  # TODO
+            loss = get_cd_hd_loss(args, pred_cd_hd, query_pts, gt_pts)  # TODO
 
 
             epoch_loss += loss.item()
@@ -118,7 +118,7 @@ def train(args):
 def parse_train_args():
     parser = argparse.ArgumentParser(description='Training Arguments')
 
-    parser.add_argument('--dataset', default='pu1k', type=str, help='pu1k or pugan')
+    parser.add_argument('--dataset', default='pugan', type=str, help='pu1k or pugan')
     parser.add_argument('--optim', default='adam', type=str, help='optimizer, adam or sgd')
     parser.add_argument('--lr', default=1e-3, type=float, help='learning rate')
     parser.add_argument('--epochs', default=60, type=int, help='training epochs')

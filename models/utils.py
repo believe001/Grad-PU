@@ -119,28 +119,98 @@ def get_p2p_loss(args, pred_p2p, sample_pts, gt_pts):
     loss = loss.squeeze(1).sum(dim=-1).mean()
 
     return loss
-def get_cd_loss(args, pred_cd, sample_pts, gt_pts):
-    # pred_cd: 维度(b, 1), sample_pts:维度(b, 3, n),gt_pts:维度(b, 3 ,n)
-    # 计算sample_pts和gt_pts之间的CD距离gt_cd维度(b,1)
-    # 计算loss:pred_cd和gt_cd:scalar
-    knn_pts = get_knn_pts(1, gt_pts, sample_pts).squeeze(-1)
-    gt_cd = torch.norm(knn_pts - sample_pts, p=2, dim=1, keepdim=True).mean(dim=-1, keepdim=True)
+def calculate_cd(sample_pts, gt_pts):
+    """
+    计算Chamfer Distance (CD)
 
-    # Calculate loss: pred_cd and gt_cd: scalar
+    Args:
+        sample_pts: (b, 3, n), 采样点云
+        gt_pts: (b, 3, n), 目标点云
+
+    Returns:
+        cd: (b, 1), 每个batch的CD距离
+    """
+    # 计算两点集的欧几里得距离矩阵
+    batch_size = sample_pts.size(0)
+    n_sample = sample_pts.size(2)
+    n_gt = gt_pts.size(2)
+
+    # 批量计算距离矩阵: (b, n_sample, n_gt)
+    dist_matrix = torch.cdist(sample_pts.permute(0, 2, 1), gt_pts.permute(0, 2, 1), p=2)
+
+    # 计算从 sample_pts 到 gt_pts 的最小距离
+    min_dist_sample_to_gt = torch.min(dist_matrix, dim=2)[0]  # (b, n_sample)
+    avg_dist_sample_to_gt = torch.mean(min_dist_sample_to_gt, dim=1)  # (b)
+
+    # 计算从 gt_pts 到 sample_pts 的最小距离
+    min_dist_gt_to_sample = torch.min(dist_matrix, dim=1)[0]  # (b, n_gt)
+    avg_dist_gt_to_sample = torch.mean(min_dist_gt_to_sample, dim=1)  # (b)
+
+    # Chamfer Distance: 两部分相加
+    cd = avg_dist_sample_to_gt + avg_dist_gt_to_sample  # (b)
+    return cd.unsqueeze(1)  # (b, 1)
+
+
+def calculate_hd(sample_pts, gt_pts):
+    """
+    计算Hausdorff Distance (HD)
+
+    Args:
+        sample_pts: (b, 3, n), 采样点云
+        gt_pts: (b, 3, n), 目标点云
+
+    Returns:
+        hd: (b, 1), 每个batch的HD距离
+    """
+    batch_size = sample_pts.size(0)
+
+    # 批量计算距离矩阵: (b, n_sample, n_gt)
+    dist_matrix = torch.cdist(sample_pts.permute(0, 2, 1), gt_pts.permute(0, 2, 1), p=2)
+
+    # Hausdorff Distance: max of min distances
+    max_dist_sample_to_gt = torch.max(torch.min(dist_matrix, dim=2)[0], dim=1)[0]  # (b)
+    max_dist_gt_to_sample = torch.max(torch.min(dist_matrix, dim=1)[0], dim=1)[0]  # (b)
+
+    # 取两者的最大值
+    hd = torch.max(max_dist_sample_to_gt, max_dist_gt_to_sample)  # (b)
+    return hd.unsqueeze(1)  # (b, 1)
+
+
+def get_cd_hd_loss(args, pred_cd, sample_pts, gt_pts):
+    """
+    计算sample_pts(b,3,n)和gt_pts(b,3,n)之间的CD距离和HD距离，并生成加权结果
+    Args:
+        args: 参数配置
+        pred_cd: (b, 1), 模型预测的CD距离
+        sample_pts: (b, 3, n), 采样点
+        gt_pts: (b, 3, n), ground truth点
+    Returns:
+        loss: float, 最终损失值
+    """
+    # 计算CD和HD
+    cd = calculate_cd(sample_pts, gt_pts)  # (b, 1)
+    hd = calculate_hd(sample_pts, gt_pts)  # (b, 1)
+
+    # 加权结果计算
+    wei_cd_hd_gt = (hd / (cd + hd)) * cd + (cd / (cd + hd)) * hd  # (b, 1)
+
+    # 计算损失：pred_cd 和 wei_cd_hd_gt
     if args.use_smooth_loss:
         if args.truncate_distance:
             loss = torch.nn.SmoothL1Loss(reduction='none', beta=args.beta)(
-                torch.clamp(pred_cd, max=args.max_dist), torch.clamp(gt_cd, max=args.max_dist)
+                torch.clamp(pred_cd, max=args.max_dist),
+                torch.clamp(wei_cd_hd_gt, max=args.max_dist)
             )
         else:
-            loss = torch.nn.SmoothL1Loss(reduction='none', beta=args.beta)(pred_cd, gt_cd)
+            loss = torch.nn.SmoothL1Loss(reduction='none', beta=args.beta)(pred_cd, wei_cd_hd_gt)
     else:
         if args.truncate_distance:
             loss = torch.nn.L1Loss(reduction='none')(
-                torch.clamp(pred_cd, max=args.max_dist), torch.clamp(gt_cd, max=args.max_dist)
+                torch.clamp(pred_cd, max=args.max_dist),
+                torch.clamp(wei_cd_hd_gt, max=args.max_dist)
             )
         else:
-            loss = torch.nn.L1Loss(reduction='none')(pred_cd, gt_cd)
+            loss = torch.nn.L1Loss(reduction='none')(pred_cd, wei_cd_hd_gt)
 
     loss = loss.mean()
     return loss
