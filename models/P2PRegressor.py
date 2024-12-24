@@ -27,5 +27,5 @@ class P2PRegressor(nn.Module):
         output = self.actvn(self.mlp_3(output))
         # (b, 1, n)
         # 将（b,1,n）转换为（b,1）TODO
-        output = torch.mean(output, dim=-1, keepdim=True)
+        output = torch.mean(output, dim=-1, keepdim=False)
         return output
