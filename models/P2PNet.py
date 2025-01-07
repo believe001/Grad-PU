@@ -4,6 +4,8 @@ from einops import repeat
 from models.FeatureExtractor import FeatureExtractor
 from models.P2PRegressor import P2PRegressor
 from models.utils import get_knn_pts, index_points
+
+
 class P2PNet(nn.Module):
     def __init__(self, args):
         super(P2PNet, self).__init__()
@@ -12,7 +14,7 @@ class P2PNet(nn.Module):
         self.feature_extractor = FeatureExtractor(args)
         self.p2p_regressor = P2PRegressor(args)
         # 引入 Dropout 层
-#         self.dropout = nn.Dropout(0.5)
+    #         self.dropout = nn.Dropout(0.5)
 
     def extract_feature(self, original_pts):
         # input: (b, 3, n)
@@ -20,7 +22,6 @@ class P2PNet(nn.Module):
         # global_feats: (b, c), local_feats: list (b, c, n)
         global_feats, local_feats = self.feature_extractor(original_pts)
         return global_feats, local_feats
-
 
     def interpolate_feature(self, original_pts, query_pts, local_feat):
         k = 3
@@ -42,7 +43,6 @@ class P2PNet(nn.Module):
         interpolated_feat = torch.sum(interpolated_feat, dim=-1)
         return interpolated_feat
 
-
     def regress_distance(self, original_pts, query_pts, global_feats, local_feats):
         # pts: (b, 3, n) global_feats: (b, c), local_feats: list (b, c, n)
 
@@ -59,11 +59,10 @@ class P2PNet(nn.Module):
         # (b, 3+c*(block_num+2), m)
         agg_feats = torch.cat((query_pts, agg_local_feats, global_feats), dim=1)
         # 引入 Dropout 层
-#         agg_feats = self.dropout(agg_feats)
+        #         agg_feats = self.dropout(agg_feats)
         # (b, 1, n)
         p2p = self.p2p_regressor(agg_feats)
         return p2p
-
 
     def forward(self, original_pts, query_pts):
         # input: (b, 3, n) 原始点为插值点。查询点为增加噪声的点。

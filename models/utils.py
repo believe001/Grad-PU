@@ -80,13 +80,11 @@ def midpoint_interpolate(args, sparse_pts):
 
     pts_num = sparse_pts.shape[-1]
     up_pts_num = int(pts_num * args.up_rate)
-    # k = int(2 * args.up_rate)
+    k = int(2 * args.up_rate)
     # (b, 3, n, k)
-    # knn_pts = get_knn_pts(k, sparse_pts, sparse_pts) # TODO 改成直接选取up_rate个点
-    knn_pts = get_knn_pts(args.up_rate, sparse_pts, sparse_pts) # TODO 改成直接选取up_rate个点
+    knn_pts = get_knn_pts(k, sparse_pts, sparse_pts)
     # (b, 3, n, k)
-    # repeat_pts = repeat(sparse_pts, 'b c n -> b c n k', k=k)
-    repeat_pts = repeat(sparse_pts, 'b c n -> b c n k', k=args.up_rate)
+    repeat_pts = repeat(sparse_pts, 'b c n -> b c n k', k=k)
     # (b, 3, n, k)
     mid_pts = (knn_pts + repeat_pts) / 2.0
     # (b, 3, (n k))
@@ -94,7 +92,7 @@ def midpoint_interpolate(args, sparse_pts):
     # note that interpolated_pts already contain sparse_pts
     interpolated_pts = mid_pts
     # fps: (b, 3, up_pts_num)
-    # interpolated_pts = FPS(interpolated_pts, up_pts_num)
+    interpolated_pts = FPS(interpolated_pts, up_pts_num)
 
     return interpolated_pts
 
