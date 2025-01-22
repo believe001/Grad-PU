@@ -4,6 +4,8 @@ import numpy as np
 from glob import glob
 import os
 import open3d as o3d
+
+from models.InterpDistNet import InterpDistNet
 from models.utils import *
 from models.P2PNet import P2PNet
 from einops import rearrange
@@ -15,7 +17,7 @@ from tqdm import tqdm
 import argparse
 
 
-def pcd_update(args, model, interpolated_pcd):
+def pcd_update(args, p2pnet, interpolated_pcd):
     # interpolated_pcd: (b, 3, n)
 
     pcd_pts_num = interpolated_pcd.shape[-1]  # 8192
@@ -32,7 +34,7 @@ def pcd_update(args, model, interpolated_pcd):
     patches, centroid, furthest_distance = normalize_point_cloud(patches)
 
     # fix the parameters of model while updating the patches
-    for param in model.parameters():
+    for param in p2pnet.parameters():
         param.requires_grad = False
 
     # initialize updated_patch
@@ -40,11 +42,11 @@ def pcd_update(args, model, interpolated_pcd):
     updated_patch.requires_grad = True
 
     # extract the global and local features and fix them
-    global_feats, local_feats = model.extract_feature(patches)
+    global_feats, local_feats = p2pnet.extract_feature(patches)
 
     for i in range(args.num_iterations):
         # predict point-to-point distance: (b, 1, n)
-        pred_p2p = model.regress_distance(patches, updated_patch, global_feats, local_feats)
+        pred_p2p = p2pnet.regress_distance(patches, updated_patch, global_feats, local_feats)
         if args.truncate_distance == True:
             pred_p2p = torch.clamp(pred_p2p, max=args.max_dist)
         # back-propagation
@@ -74,16 +76,17 @@ def pcd_upsample(args, model, input_pcd):
     # input: (b, 3, n)
 
     # interpolate: (b, 3, m)
-    interpolated_pcd = midpoint_interpolate(args, input_pcd)
+    # interpolated_pcd = midpoint_interpolate(args, input_pcd)
+    interpolated_pcd, pred_p2p = model(input_pcd)
     # update: (b, 3, m)
-    updated_pcd = pcd_update(args, model, interpolated_pcd)
+    updated_pcd = pcd_update(args, model.p2pnet, interpolated_pcd)
 
     return updated_pcd
 
 
 def test(args):
     # load model
-    model = P2PNet(args).cuda()
+    model = InterpDistNet(args).cuda()
     model.load_state_dict(torch.load(args.ckpt_path))
     model.eval()
 
@@ -151,10 +154,10 @@ def test(args):
 def parse_test_args():
     parser = argparse.ArgumentParser(description='Test Arguments')
 
-    parser.add_argument('--dataset', default='pu1k', type=str, help='pu1k or pugan')
-    parser.add_argument('--test_input_path', default='./data/PU1K/test/input_2048/input_2048/', type=str,
+    parser.add_argument('--dataset', default='pugan', type=str, help='pu1k or pugan')
+    parser.add_argument('--test_input_path', default='./data/PU-GAN/test_pointcloud/input_2048_4X/input_2048/', type=str,
                         help='the test input data path')
-    parser.add_argument('--ckpt_path', default='./pretrained_model/pu1k/ckpt/ckpt-epoch-60.pth', type=str, help='the pretrained model path')
+    parser.add_argument('--ckpt_path', default='./output/2025-01-20T09:23:49.795635/ckpt/ckpt-epoch-60.pth', type=str, help='the pretrained model path')
     parser.add_argument('--save_dir', default='pcd', type=str, help='save upsampled point cloud')
     parser.add_argument('--truncate_distance', default=True, type=str2bool, help='whether truncate distance')
     parser.add_argument('--up_rate', default=4, type=int, help='upsampling rate')

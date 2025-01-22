@@ -198,3 +198,6 @@ def get_query_points(input_pts, args):
 def reset_model_args(train_args, model_args):
     for arg in vars(train_args):
         setattr(model_args, arg, getattr(train_args, arg))
+
+
+

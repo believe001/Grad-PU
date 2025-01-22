@@ -29,6 +29,10 @@ def parse_pugan_args():
     parser.add_argument('--save_rate', default=10, type=int, help='model save frequency')
     parser.add_argument('--use_smooth_loss', default=False, type=str2bool, help='whether use smooth L1 loss')
     parser.add_argument('--beta', default=0.01, type=float, help='beta for smooth L1 loss')
+    parser.add_argument('--alpha', default=0.1, type=float, help='weighting factors for CD loss and P2P loss')
+    parser.add_argument('--resume', default='none', type=str, help='resume training model path')
+
+
     # model
     parser.add_argument('--k', default=16, type=int, help='neighbor number')
     parser.add_argument('--up_rate', default=4, type=int, help='upsampling rate')

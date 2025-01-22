@@ -1,6 +1,8 @@
 import torch
 import torch.nn as nn
 from einops import repeat
+
+from models.DPRegressor import DPRegressor
 from models.FeatureExtractor import FeatureExtractor
 from models.P2PRegressor import P2PRegressor
 from models.utils import get_knn_pts, index_points
@@ -12,8 +14,10 @@ class P2PNet(nn.Module):
 
         self.args = args
         self.feature_extractor = FeatureExtractor(args)
+        # self.dense_points_regressor = DPRegressor(args)
         self.p2p_regressor = P2PRegressor(args)
         # 引入 Dropout 层
+
     #         self.dropout = nn.Dropout(0.5)
 
     def extract_feature(self, original_pts):
